@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcrypt";
-import User from "../models/user"; // Assuming you have a User model defined
+import User from "../models/user";
 
 // Signup logic (direct in the controller)
 export const signup = async (req: Request, res: Response) => {

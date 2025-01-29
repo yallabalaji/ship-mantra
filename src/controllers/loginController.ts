@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcrypt";
-import User from "../models/user"; // Assuming you have a User model defined
+import User from "../models/user";
 
 // Login logic (direct in the controller)
 export const login = async (
