@@ -1,5 +1,10 @@
 import express from "express";
-import { createHub, getAllHubs } from "../controllers/hubController";
+import {
+  createHub,
+  getAllHubs,
+  getHubsByCity,
+  getValidCities,
+} from "../controllers/hubController";
 
 const router = express.Router();
 
@@ -80,5 +85,59 @@ router.post("/createhub", createHub);
  *         description: Internal server error
  */
 router.get("/allhubs", getAllHubs);
+
+/**
+ * @swagger
+ * /hub/available:
+ *   get:
+ *     summary: Get available hubs for a given city
+ *     tags: [Hub Management]
+ *     parameters:
+ *       - in: query
+ *         name: city
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The city name to filter hubs.
+ *     responses:
+ *       200:
+ *         description: List of available hubs for the city.
+ *       400:
+ *         description: City parameter is missing.
+ *       404:
+ *         description: No hubs found for the city.
+ *       500:
+ *         description: Internal server error.
+ */
+router.get("/available", getHubsByCity);
+
+/**
+ * @swagger
+ * /hub/valid-cities:
+ *   get:
+ *     tags:
+ *       - Hub Management
+ *     summary: Get all available cities with registered hubs for route planning
+ *     description: Fetches all cities where hubs are registered for route planning, without requiring state validation.
+ *     responses:
+ *       200:
+ *         description: Successfully fetched available cities.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Available cities fetched successfully"
+ *                 cities:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                   example: ["New York", "San Francisco", "Los Angeles"]
+ *       500:
+ *         description: Internal Server Error.
+ */
+router.get("/valid-cities", getValidCities);
 
 export default router;
