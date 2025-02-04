@@ -3,7 +3,7 @@ import Hub from "../models/Hub";
 
 // Create a Hub
 export const createHub = async (req: Request, res: Response): Promise<void> => {
-  const { hubCode, hubCity } = req.body;
+  const { hubCode, hubName, hubCity, isCentral } = req.body;
 
   // Check if the required fields are provided
   if (!hubCode || !hubCity) {
@@ -13,10 +13,32 @@ export const createHub = async (req: Request, res: Response): Promise<void> => {
 
   try {
     // Check if the hub already exists with the same hubCode and hubCity
-    const existingHub = await Hub.findOne({ hubCode, hubCity });
+    const existingHub = await Hub.findOne({
+      hubCode,
+      hubName,
+      hubCity,
+      isCentral,
+    });
     if (existingHub) {
       res.status(409).json({
-        message: "Hub with the same hubCode and hubCity already exists.",
+        message:
+          "Hub with the same hubCode , hubName and hubCity already exists.",
+      });
+      return;
+    }
+
+    const existingHubCode = await Hub.findOne({ hubCode });
+    if (existingHubCode) {
+      res.status(409).json({
+        message: " Hub Code Already Exits. Please Use Unique One",
+      });
+      return;
+    }
+
+    const existingCentralHub = await Hub.findOne({ hubCity, isCentral: true });
+    if (existingCentralHub && isCentral) {
+      res.status(409).json({
+        message: "Central Hub Already Exits for hubCity.",
       });
       return;
     }
@@ -24,7 +46,9 @@ export const createHub = async (req: Request, res: Response): Promise<void> => {
     // Create a new Hub
     const newHub = new Hub({
       hubCode,
+      hubName,
       hubCity,
+      isCentral,
     });
 
     // Save the hub to the database

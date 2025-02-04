@@ -21,25 +21,32 @@ const router = express.Router();
  *   post:
  *     tags: [Hub Management]
  *     summary: Create a new hub
- *     description: This endpoint creates a new hub with a unique code and city.
+ *     description: Creates a new hub with the specified properties.
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - hubCode
- *               - hubCity
  *             properties:
  *               hubCode:
  *                 type: string
- *                 example: "VSKP01"
+ *                 description: The code of the hub
+ *                 example: "HUB001"
+ *               hubName:
+ *                 type: string
+ *                 description: The name of the hub
+ *                 example: "Central Hub"
  *               hubCity:
  *                 type: string
- *                 example: "Visakhapatnam"
+ *                 description: The city of the hub
+ *                 example: "New York"
+ *               isCentral:
+ *                 type: boolean
+ *                 description: Whether the hub is central
+ *                 example: true
  *     responses:
- *       200:
+ *       201:
  *         description: Hub created successfully
  *         content:
  *           application/json:
@@ -49,10 +56,31 @@ const router = express.Router();
  *                 message:
  *                   type: string
  *                   example: "Hub created successfully"
+ *                 hub:
+ *                   type: object
+ *                   properties:
+ *                     hubCode:
+ *                       type: string
+ *                       example: "HUB001"
+ *                     hubName:
+ *                       type: string
+ *                       example: "Central Hub"
+ *                     hubCity:
+ *                       type: string
+ *                       example: "New York"
+ *                     isCentral:
+ *                       type: boolean
+ *                       example: true
  *       400:
- *         description: Invalid input or hub already exists
- *       500:
- *         description: Internal server error
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "hubCode, hubName, and hubCity are required"
  */
 router.post("/createhub", createHub);
 
