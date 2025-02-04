@@ -7,7 +7,7 @@ import {
   findAllRoutes,
   getShortestRoute,
   addDefaultRoutesForCityHubs,
-} from "../utils/graph";
+} from "../utils/Graph";
 
 export const createRoute = async (
   req: Request,
