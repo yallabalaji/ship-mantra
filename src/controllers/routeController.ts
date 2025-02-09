@@ -61,6 +61,9 @@ export const createRoute = async (
   }
 };
 
+
+
+
 /**
  * Controller to find all routes between source and destination hubs
  */
@@ -104,3 +107,24 @@ export const findRoutesBetweenHubs = async (
     return;
   }
 };
+
+  // Controller to get all routes
+  // Get All Hubs
+  export const getAllRoutes = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
+    try {
+      const routes = await Route.find();
+      if (routes.length === 0) {
+        res.status(404).json({ message: "No routes found" }); // If no hubs found
+        return;
+      }
+      res.status(200).json(routes); // Return list of all hubs
+      return;
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Server Error: Unable to fetch routes." });
+      return;
+    }
+  };

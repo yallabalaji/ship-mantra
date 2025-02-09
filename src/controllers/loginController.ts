@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcrypt";
 import User from "../models/user"; // Adjust the path as necessary
+import { rootCertificates } from "tls";
 
 // Login logic (direct in the controller)
 export const login = async (
@@ -37,7 +38,7 @@ export const login = async (
     // Return success response (JWT can be included if you use token-based authentication)
     res
       .status(200)
-      .json({ message: "Login successful", username: user.username });
+      .json({ message: "Login successful", username: user.username, role : user.roles });
   } catch (error) {
     // Handle error
     console.error(error);

@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   createRoute,
   findRoutesBetweenHubs,
+  getAllRoutes
 } from "../controllers/routeController";
 
 const router = Router();
@@ -132,7 +133,30 @@ const router = Router();
  *         description: Internal server error.
  */
 
+/**
+ * @swagger
+ * /routes:
+ *   get:
+ *     summary: Get all routes
+ *     tags:
+ *       - Routes
+ *     responses:
+ *       200:
+ *         description: A list of all routes
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Route'
+ *       404:
+ *         description: No routes found
+ *       500:
+ *         description: Internal server error
+ */
+
 router.post("/create", createRoute);
 router.post("/find-routes", findRoutesBetweenHubs);
+router.get("/", getAllRoutes);
 
 export default router;
