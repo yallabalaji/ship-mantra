@@ -102,7 +102,9 @@ export const getHubsByCity = async (
       return;
     }
 
-    res.status(200).json({ hubs });
+    const hubNames = hubs.map(hub => hub.hubName); // Extract hub names
+
+    res.status(200).json(hubNames); // Return the array of hub names
     return;
   } catch (error) {
     res.status(500).json({ message: "Internal server error", error });
@@ -116,16 +118,8 @@ export const getValidCities = async (
   res: Response
 ): Promise<void> => {
   try {
-    // Using aggregate to get unique city names where hubs are available
-    const cities = await Hub.aggregate([
-      { $group: { _id: "$hubCity" } }, // Group by hubCity
-      { $project: { city: "$_id", _id: 0 } }, // Project to return city name only
-    ]);
-    // Return the cities
-    res.status(200).json({
-      message: "Available cities fetched successfully",
-      cities: cities.map((city) => city.city),
-    });
+    const hubs = await Hub.find().distinct("hubCity"); // Fetch distinct cities from the Hub collection
+    res.status(200).json(hubs); // Return the array of cities directly
   } catch (error) {
     res.status(500).json({ message: "Error fetching available cities", error });
   }
