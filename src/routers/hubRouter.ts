@@ -6,6 +6,8 @@ import {
   getValidCities,
 } from "../controllers/hubController";
 
+import { verifyToken, authorizeRole } from "../middleware/authMiddleware";
+
 const router = express.Router();
 
 /**
@@ -21,6 +23,8 @@ const router = express.Router();
  *   post:
  *     tags: [Hub Management]
  *     summary: Create a new hub
+ *     security:
+ *       - bearerAuth: []
  *     description: Creates a new hub with the specified properties.
  *     requestBody:
  *       required: true
@@ -82,7 +86,7 @@ const router = express.Router();
  *                   type: string
  *                   example: "hubCode, hubName, and hubCity are required"
  */
-router.post("/createhub", createHub);
+router.post("/createhub", verifyToken, authorizeRole(["RoutePlanner"]), createHub);
 
 /**
  * @swagger
@@ -90,6 +94,8 @@ router.post("/createhub", createHub);
  *   get:
  *     tags: [Hub Management]
  *     summary: Get a list of all hubs
+ *     security:
+ *       - bearerAuth: []
  *     description: This endpoint fetches all the hubs created in the system.
  *     responses:
  *       200:
@@ -112,13 +118,15 @@ router.post("/createhub", createHub);
  *       500:
  *         description: Internal server error
  */
-router.get("/allhubs", getAllHubs);
+router.get("/allhubs", verifyToken, authorizeRole(["RouteUser","RoutePlanner"]), getAllHubs);
 
 /**
  * @swagger
  * /hub/available:
  *   get:
  *     summary: Get available hubs for a given city
+ *     security:
+ *       - bearerAuth: []
  *     tags: [Hub Management]
  *     parameters:
  *       - in: query
@@ -137,7 +145,7 @@ router.get("/allhubs", getAllHubs);
  *       500:
  *         description: Internal server error.
  */
-router.get("/available", getHubsByCity);
+router.get("/available",  verifyToken, authorizeRole(["RouteUser","RoutePlanner"]), getHubsByCity);
 
 /**
  * @swagger
@@ -146,6 +154,8 @@ router.get("/available", getHubsByCity);
  *     tags:
  *       - Hub Management
  *     summary: Get all available cities with registered hubs for route planning
+ *     security:
+ *       - bearerAuth: []
  *     description: Fetches all cities where hubs are registered for route planning, without requiring state validation.
  *     responses:
  *       200:
@@ -166,6 +176,6 @@ router.get("/available", getHubsByCity);
  *       500:
  *         description: Internal Server Error.
  */
-router.get("/valid-cities", getValidCities);
+router.get("/valid-cities",  verifyToken, authorizeRole(["RouteUser","RoutePlanner"]), getValidCities);
 
 export default router;
