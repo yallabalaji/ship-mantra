@@ -30,8 +30,6 @@ export const createRoute = async (
     const allHubs = await Hub.find({}, "_id name city").lean();
     const validHubIds = new Set(allHubs.map((hub) => hub._id.toString()));
 
-    console.log("Valid Hub IDs:", validHubIds);
-
     // Validate provided hub IDs
     for (const hub of hubs) {
       if (!validHubIds.has(hub)) {
