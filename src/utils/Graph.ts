@@ -14,84 +14,73 @@ let graph: Graph = {};
 export const buildGraph = async () => {
   const routes = await Route.find({}).populate("hubs"); // Fetch all routes with populated hubs
 
-  // Clear the existing graph to avoid old data
-  graph = {};
-
   // Fetch the list of distinct cities from the Hub collection
   const cities = await Hub.distinct("hubCity"); // Fetch distinct cities from the Hub collection
 
-  // Fetch central hubs dynamically from the database
-  const cityCentralHubs: { [cityName: string]: string } = {};
+  const graph: Record<string, string[]> = {};
+  const cityCentralHubs: Record<string, string> = {}; // Map of city to its central hub
 
+  // Fetch all hubs to ensure every hub is at least initialized in the graph
+  const allHubs = await Hub.find({});
+  for (const hub of allHubs) {
+    if (hub?.hubName && !graph[hub.hubName]) {
+      graph[hub.hubName] = []; // Initialize empty array for each hub
+    }
+  }
+  
   // Fetch central hubs for each city
   for (const city of cities) {
-    const centralHub = await Hub.findOne({ hubCity: city, isCentral: true }); // Fetch central hub for the city
-    if (centralHub) {
-      cityCentralHubs[city] = centralHub.hubName; // Store the hubName of the central hub
+    const centralHub = await Hub.findOne({ hubCity: city, isCentral: true });
+    if (centralHub?.hubName) {
+      cityCentralHubs[city] = centralHub.hubName;
     }
   }
-
+  
   // Iterate over each route to build connections
   for (const route of routes) {
-    // Iterate over the hubs within each route
     for (let i = 0; i < route.hubs.length - 1; i++) {
-      const currentHub = await Hub.findById(route.hubs[i]); // Get the current hub's details
-      const currentHubName = currentHub?.hubName;
-      const nextHub = await Hub.findById(route.hubs[i + 1]); // Get the next hub's details
-      const nextHubName = nextHub?.hubName;
-
-      // If the current hub doesn't exist in the graph, create an empty list
-      if (currentHubName && !graph[currentHubName]) {
-        graph[currentHubName] = [];
+      const currentHub = await Hub.findById(route.hubs[i]);
+      const nextHub = await Hub.findById(route.hubs[i + 1]);
+  
+      if (!currentHub?.hubName || !nextHub?.hubName) continue; // Skip if any hub is undefined
+  
+      // Ensure hubs exist in graph
+      if (!graph[currentHub.hubName]) graph[currentHub.hubName] = [];
+      if (!graph[nextHub.hubName]) graph[nextHub.hubName] = [];
+  
+      // Add bidirectional connection
+      if (!graph[currentHub.hubName].includes(nextHub.hubName)) {
+        graph[currentHub.hubName].push(nextHub.hubName);
       }
-
-      // If the next hub doesn't exist in the graph, create an empty list
-      if (nextHubName && !graph[nextHubName]) {
-        graph[nextHubName] = [];
-      }
-
-      // Add bidirectional connections: current -> next and next -> current
-      if (currentHubName && nextHubName) {
-        if (!graph[currentHubName].includes(nextHubName)) {
-          graph[currentHubName].push(nextHubName);
-        }
-        if (!graph[nextHubName].includes(currentHubName)) {
-          graph[nextHubName].push(currentHubName);
-        }
+      if (!graph[nextHub.hubName].includes(currentHub.hubName)) {
+        graph[nextHub.hubName].push(currentHub.hubName);
       }
     }
   }
-
+  
   // Add internal hub-to-central hub connections for each city
   for (const city of cities) {
     const centralHubName = cityCentralHubs[city];
-
-    // Fetch all hubs for the current city (except the central hub)
-    const hubsInCity = await Hub.find({ hubCity: city }); // Fetch all hubs for this city
-    const cityHubs = hubsInCity.filter((hub) => hub.hubName !== centralHubName);
-
-    // Connect each city hub to the city's central hub
-    for (const hub of cityHubs) {
-      const hubName = hub.hubName;
-
-      // Ensure the central hub and the current hub are bidirectionally connected
-      if (!graph[centralHubName]) {
-        graph[centralHubName] = [];
+  
+    if (!centralHubName) continue; // Skip cities without a central hub
+  
+    const hubsInCity = await Hub.find({ hubCity: city });
+    for (const hub of hubsInCity) {
+      if (!hub?.hubName || hub.hubName === centralHubName) continue;
+  
+      if (!graph[centralHubName]) graph[centralHubName] = [];
+      if (!graph[hub.hubName]) graph[hub.hubName] = [];
+  
+      // Add bidirectional connection
+      if (!graph[hub.hubName].includes(centralHubName)) {
+        graph[hub.hubName].push(centralHubName);
       }
-      if (!graph[hubName]) {
-        graph[hubName] = [];
-      }
-
-      // Add the connection
-      if (!graph[hubName].includes(centralHubName)) {
-        graph[hubName].push(centralHubName);
-      }
-      if (!graph[centralHubName].includes(hubName)) {
-        graph[centralHubName].push(hubName);
+      if (!graph[centralHubName].includes(hub.hubName)) {
+        graph[centralHubName].push(hub.hubName);
       }
     }
   }
-
+  
   // grouping all hubs by city name
   let groupedHubsByCity: { [key: string]: string[] } = {};
   for (const city of cities) {
