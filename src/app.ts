@@ -27,6 +27,22 @@ app.listen(PORT, () => {
 // swagger confuguration
 
 // Swagger JSDoc setup
+// const swaggerOptions = {
+//   swaggerDefinition: {
+//     openapi: "3.0.0",
+//     info: {
+//       title: "Ship Mantra API",
+//       description: "API documentation for Ship Mantra",
+//       version: "1.0.0",
+//     },
+//   },
+//   apis: ["./src/routers/*.ts"], // Path to the route files for auto-generation
+// };
+
+// const swaggerDocs = swaggerJSDoc(swaggerOptions);
+
+
+// Swagger JSDoc setup with JWT Authentication
 const swaggerOptions = {
   swaggerDefinition: {
     openapi: "3.0.0",
@@ -35,11 +51,26 @@ const swaggerOptions = {
       description: "API documentation for Ship Mantra",
       version: "1.0.0",
     },
+    components: {
+      securitySchemes: {
+        BearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT", // Optional
+        },
+      },
+    },
+    security: [
+      {
+        BearerAuth: [],
+      },
+    ],
   },
   apis: ["./src/routers/*.ts"], // Path to the route files for auto-generation
 };
 
 const swaggerDocs = swaggerJSDoc(swaggerOptions);
+
 
 // auth end points routes
 app.use("/auth", authRouter);

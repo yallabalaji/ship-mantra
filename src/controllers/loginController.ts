@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcrypt";
 import User from "../models/user"; // Adjust the path as necessary
-import { rootCertificates } from "tls";
-
+ 
 // Login logic (direct in the controller)
 export const login = async (
   req: Request,
@@ -11,6 +10,7 @@ export const login = async (
 ): Promise<void> => {
   try {
     const { username, password } = req.body;
+    const jwt = require('jsonwebtoken');
 
     // Input validation: Check if username and password are provided
     if (!username || !password) {
@@ -32,13 +32,15 @@ export const login = async (
       return;
     }
 
-    // Optionally, generate a JWT token if you decide to implement token-based authentication
-    // const token = jwt.sign({ id: user._id, username: user.username }, 'yourSecretKey', { expiresIn: '1h' });
+    const token = jwt.sign(
+      { id: user._id, username: user.username, role: user.roles }, // Store role in token
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
 
-    // Return success response (JWT can be included if you use token-based authentication)
     res
       .status(200)
-      .json({ message: "Login successful", username: user.username, role : user.roles });
+      .json({ message: "Login successful", username: user.username, role : user.roles , token });
   } catch (error) {
     // Handle error
     console.error(error);

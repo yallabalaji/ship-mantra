@@ -15,7 +15,6 @@ export const createRoute = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    console.log("Request Body:", req.body);
 
     const { hubs, sourceCity, destinationCity, routeName, intermediateCities } =
       req.body;
