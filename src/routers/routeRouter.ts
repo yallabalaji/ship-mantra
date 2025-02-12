@@ -5,6 +5,8 @@ import {
   getAllRoutes
 } from "../controllers/routeController";
 
+import { verifyToken, authorizeRole } from "../middleware/authMiddleware";
+
 const router = Router();
 
 /**
@@ -43,6 +45,8 @@ const router = Router();
  * /routes/create:
  *   post:
  *     summary: Create a new route
+ *     security:
+ *       - BearerAuth: []
  *     tags:
  *       - Routes
  *     requestBody:
@@ -70,6 +74,8 @@ const router = Router();
  * /routes/find-routes:
  *   post:
  *     summary: Find routes between two hubs
+ *     security:
+ *       - BearerAuth: []
  *     description: Returns all possible routes and the shortest route between the source and destination hubs.
  *     tags:
  *       - Routes
@@ -138,6 +144,8 @@ const router = Router();
  * /routes:
  *   get:
  *     summary: Get all routes
+ *     security:
+ *       - BearerAuth: []
  *     tags:
  *       - Routes
  *     responses:
@@ -155,8 +163,8 @@ const router = Router();
  *         description: Internal server error
  */
 
-router.post("/create", createRoute);
-router.post("/find-routes", findRoutesBetweenHubs);
-router.get("/", getAllRoutes);
+router.post("/create",verifyToken, authorizeRole(["RoutePlanner"]), createRoute);
+router.post("/find-routes", verifyToken, authorizeRole(["RouteUser","RoutePlanner"]), findRoutesBetweenHubs);
+router.get("/",  verifyToken, authorizeRole(["RouteUser","RoutePlanner"]),getAllRoutes);
 
 export default router;
