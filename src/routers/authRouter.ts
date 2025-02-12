@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { login } from "../controllers/loginController";
 import { signup } from "../controllers/signupController";
+import { verifyToken, authorizeRole } from "../middleware/authMiddleware";
+
 
 const router = Router();
 
@@ -9,6 +11,8 @@ const router = Router();
  * /auth/signIn:
  *   post:
  *     summary: User Signup
+ *     security:
+ *       - BearerAuth: []
  *     description: Creates a new user account in the system.
  *     tags:
  *       - Authentication
@@ -33,7 +37,7 @@ const router = Router();
  *       400:
  *         description: Bad request
  */
-router.post("/signIn", signup);
+router.post("/signIn", verifyToken, authorizeRole(["Admin"]), signup);
 
 /**
  * @swagger
