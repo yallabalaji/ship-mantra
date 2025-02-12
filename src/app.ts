@@ -71,7 +71,10 @@ const swaggerOptions = {
 
 const swaggerDocs = swaggerJSDoc(swaggerOptions);
 
-
+// swagger ui setup
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs,{
+  explorer: true, // This is essential for the "Authorize" button
+}));
 // auth end points routes
 app.use("/auth", authRouter);
 // Mount the hubRouter
@@ -80,8 +83,7 @@ app.use("/hub", hubRouter);
 app.use("/routes", routeRouter);
 // Mount the graph update endpoint
 app.use("/graph", graphRouter);
-// swagger ui setup
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
 
 // MongoDB connection using environment variable for URI
 connectDB();

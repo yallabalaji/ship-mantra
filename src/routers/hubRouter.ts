@@ -24,7 +24,7 @@ const router = express.Router();
  *     tags: [Hub Management]
  *     summary: Create a new hub
  *     security:
- *       - bearerAuth: []
+ *       - BearerAuth: []
  *     description: Creates a new hub with the specified properties.
  *     requestBody:
  *       required: true
@@ -95,7 +95,7 @@ router.post("/createhub", verifyToken, authorizeRole(["RoutePlanner"]), createHu
  *     tags: [Hub Management]
  *     summary: Get a list of all hubs
  *     security:
- *       - bearerAuth: []
+ *       - BearerAuth: []
  *     description: This endpoint fetches all the hubs created in the system.
  *     responses:
  *       200:
@@ -126,7 +126,7 @@ router.get("/allhubs", verifyToken, authorizeRole(["RouteUser","RoutePlanner"]),
  *   get:
  *     summary: Get available hubs for a given city
  *     security:
- *       - bearerAuth: []
+ *       - BearerAuth: []
  *     tags: [Hub Management]
  *     parameters:
  *       - in: query
@@ -155,7 +155,7 @@ router.get("/available",  verifyToken, authorizeRole(["RouteUser","RoutePlanner"
  *       - Hub Management
  *     summary: Get all available cities with registered hubs for route planning
  *     security:
- *       - bearerAuth: []
+ *       - BearerAuth: []
  *     description: Fetches all cities where hubs are registered for route planning, without requiring state validation.
  *     responses:
  *       200:

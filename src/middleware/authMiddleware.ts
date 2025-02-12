@@ -19,7 +19,8 @@ interface JwtPayload {
 // Middleware to verify JWT token
 export const verifyToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const token : string = req.header("Authorization")?.split(" ")[1] || ' '; // Extract token
-
+  console.log("The Token :" , token);
+  console.log("The Token Copy  :" , req.header("Authorization")?.split(" ")[0]);
   if (!token)  {
      res.status(401).json({ message: "Access Denied" });
      return;
