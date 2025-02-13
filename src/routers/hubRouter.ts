@@ -4,6 +4,7 @@ import {
   getAllHubs,
   getHubsByCity,
   getValidCities,
+  getAllHubsByPagination
 } from "../controllers/hubController";
 
 import { verifyToken, authorizeRole } from "../middleware/authMiddleware";
@@ -19,6 +20,27 @@ const router = express.Router();
 
 /**
  * @swagger
+ * components:
+ *  schemas:
+ *   Hub:
+ *     type: object
+ *     required:
+ *       - hubCode
+ *       - hubName
+ *       - hubCity
+ *     properties:
+ *      hubCode: 
+ *       type: string
+ *       description: The code of the hub
+ *       example: HUB001
+ *      hubName:
+ *       type: string
+ *       description: The name of the hub
+ *       example: Central Hub
+ *      hubCity:
+ *       type: string
+ *       description: The city where the hub is located
+ *       example: Hyderabad
  * /hub/createhub:
  *   post:
  *     tags: [Hub Management]
@@ -44,11 +66,12 @@ const router = express.Router();
  *               hubCity:
  *                 type: string
  *                 description: The city of the hub
- *                 example: "New York"
+ *                 example: "Hyderabad"
  *               isCentral:
  *                 type: boolean
  *                 description: Whether the hub is central
  *                 example: true
+ *           
  *     responses:
  *       201:
  *         description: Hub created successfully
@@ -177,5 +200,61 @@ router.get("/available",  verifyToken, authorizeRole(["RouteUser","RoutePlanner"
  *         description: Internal Server Error.
  */
 router.get("/valid-cities",  verifyToken, authorizeRole(["RouteUser","RoutePlanner"]), getValidCities);
+
+
+/**
+ * @swagger
+ * /hub/allHubsByPagination:
+ *   get:
+ *     summary: Get all hubs with pagination
+ *     security:
+ *       - BearerAuth: []
+ *     description: Retrieve a paginated list of all hubs.
+ *     tags:
+ *       - Hub Management
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number for pagination (default is 1).
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of hubs per page (default is 10).
+ *     responses:
+ *       200:
+ *         description: Successful response with paginated hubs.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 totalHubs:
+ *                   type: integer
+ *                 page:
+ *                   type: integer
+ *                 limit:
+ *                   type: integer
+ *                 hubs:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                       hubName:
+ *                         type: string
+ *                       location:
+ *                         type: string
+ *       404:
+ *         description: No hubs found.
+ *       500:
+ *         description: Server error.
+ */
+router.get("/allHubsByPagination", verifyToken, authorizeRole(["RouteUser","RoutePlanner"]), getAllHubsByPagination);
 
 export default router;

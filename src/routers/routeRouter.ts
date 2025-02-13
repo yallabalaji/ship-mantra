@@ -2,7 +2,8 @@ import { Router } from "express";
 import {
   createRoute,
   findRoutesBetweenHubs,
-  getAllRoutes
+  getAllRoutes,
+  getAllRoutesPagination
 } from "../controllers/routeController";
 
 import { verifyToken, authorizeRole } from "../middleware/authMiddleware";
@@ -37,9 +38,9 @@ const router = Router();
  *             description: List of hub IDs associated with the route
  *           description: A list of hubs for the route
  *       example:
- *         routeName: "Route 101"
- *         sourceCity: "New York"
- *         destinationCity: "Los Angeles"
+ *         routeName: "HYD VSKP Express"
+ *         sourceCity: "Hyderabad"
+ *         destinationCity: "Visakhapatnam"
  *         hubs: ["abc123", "def456", "ghi789"]
  *
  * /routes/create:
@@ -166,5 +167,39 @@ const router = Router();
 router.post("/create",verifyToken, authorizeRole(["RoutePlanner"]), createRoute);
 router.post("/find-routes", verifyToken, authorizeRole(["RouteUser","RoutePlanner"]), findRoutesBetweenHubs);
 router.get("/",  verifyToken, authorizeRole(["RouteUser","RoutePlanner"]),getAllRoutes);
+
+
+/**
+ * @swagger
+ * /routes/routesPagination:
+ *   get:
+ *     summary: Get paginated list of all routes
+ *     security:
+ *       - BearerAuth: []
+ *     tags:
+ *       - Routes
+ *     description: Fetches routes with pagination support.
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         required: false
+ *         description: The page number (default is 1)
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         required: false
+ *         description: Number of routes per page (default is 10)
+ *     responses:
+ *       200:
+ *         description: Successfully fetched routes
+ *       404:
+ *         description: No routes found
+ *       500:
+ *         description: Server error
+ */
+router.get("/routesPagination", verifyToken, authorizeRole(["RouteUser","RoutePlanner"]), getAllRoutesPagination);
 
 export default router;

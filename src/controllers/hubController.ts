@@ -81,6 +81,45 @@ export const getAllHubs = async (
     
   }
 };
+
+export const getAllHubsByPagination = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    // Get query parameters for pagination
+    const page = parseInt(req.query.page as string) || 1; // Default page 1
+    const limit = parseInt(req.query.limit as string) || 10; // Default limit 10
+
+    // Get total count before pagination
+    const totalHubs = await Hub.countDocuments();
+
+    // Fetch paginated results
+    const hubs = await Hub.find()
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    // Check if no hubs found
+    if (!hubs.length) {
+      res.status(404).json({ message: "No hubs found" });
+      return;
+    }
+
+    // Send response with paginated results
+    res.status(200).json({
+      totalHubs,
+      page,
+      limit,
+      hubs,
+    });
+  } catch (error) {
+    console.error("Error fetching hubs:", error);
+    next(error);
+    res.status(500).json({ message: "Server Error: Unable to fetch hubs." });
+  }
+};
+
 // function get hubs by city
 export const getHubsByCity = async (
   req: Request,

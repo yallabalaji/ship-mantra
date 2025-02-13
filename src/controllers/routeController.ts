@@ -125,3 +125,40 @@ export const findRoutesBetweenHubs = async (
       return;
     }
   };
+
+  export const getAllRoutesPagination = async (req: Request, res: Response): Promise<void> => {
+    try {
+      // Extract pagination parameters from the query string
+      const page = parseInt(req.query.page as string) || 1; // Default to page 1
+      const limit = parseInt(req.query.limit as string) || 10; // Default limit is 10
+  
+      // Calculate the number of documents to skip
+      const skip = (page - 1) * limit;
+  
+      // Fetch paginated routes
+      const routes = await Route.find().skip(skip).limit(limit);
+  
+      // Get total count of documents for pagination metadata
+      const totalRoutes = await Route.countDocuments();
+  
+      if (routes.length === 0) {
+        res.status(404).json({ message: "No routes found" });
+        return;
+      }
+  
+      // Send response with pagination metadata
+      res.status(200).json({
+        totalRoutes,
+        totalPages: Math.ceil(totalRoutes / limit),
+        currentPage: page,
+        pageSize: limit,
+        routes,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Server Error: Unable to fetch routes." });
+    }
+  };
+  
+
+  
